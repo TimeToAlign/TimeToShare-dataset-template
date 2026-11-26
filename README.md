@@ -16,7 +16,7 @@ code: every tool comes from TimeToShare, at the version the configuration names.
 | File | Does |
 | --- | --- |
 | `.pre-commit-config.yaml` | the git hooks that validate the manifests and write and check the commit type |
-| `.github/workflows/validate.yml` | validates every manifest on each push and pull request |
+| `.github/workflows/validate.yml` | validates every manifest on each push to `main` and each pull request |
 | `.github/workflows/release.yml` | checks the version step of the data, then runs release-please |
 | `release-please-config.json`, `.release-please-manifest.json` | release-please's configuration and the current version |
 | `.gitattributes`, `.gitignore` | line endings for YAML and JSON, Parquet as binary; files git ignores |
@@ -33,19 +33,21 @@ code: every tool comes from TimeToShare, at the version the configuration names.
    common for data; tables imported from elsewhere keep their own terms, which
    `FETCH.md` records, see [Laying out the data](#laying-out-the-data)).
 4. Replace `example/manifest.yaml` with the dataset's own manifests. It is a sample
-   only: one recording timeline in seconds with an excerpt as its child, and one
-   score timeline in quarters with a region.
-5. Pin TimeToShare, in three places, to one TimeToShare release tag (`v0.3.0`) or
-   commit hash:
+   only: one recording timeline in seconds with an excerpt as its child, one score
+   timeline in quarters with a region, and the inline `@context` with the format's
+   terms, which every manifest carries.
+5. Pin TimeToShare to one commit, the same full commit hash in three places:
    - `.pre-commit-config.yaml`: the `rev:` of the TimeToShare repository;
-   - `.github/workflows/release.yml`: the `@main` at the end of the `uses:` line of the
-     job `check`, and its input `timetoshare-ref:`.
+   - `.github/workflows/release.yml`: the `main` after the `@` at the end of the
+     `uses:` line of the job `check`;
+   - `.github/workflows/release.yml`: the job's input `timetoshare-ref:`.
 
-   Each carries the comment `# pin to a TimeToShare release tag or commit`. The
-   releases are listed at <https://github.com/TimeToAlign/TimeToShare/releases>;
-   `pre-commit autoupdate --freeze --repo https://github.com/TimeToAlign/TimeToShare`
-   writes the commit of the latest release into `.pre-commit-config.yaml`, after
-   which the same hash goes into both places in `release.yml`.
+   Each carries the comment `# pin to a TimeToShare release tag or commit`.
+   `git ls-remote https://github.com/TimeToAlign/TimeToShare main` prints the latest
+   commit of TimeToShare's `main`. Pin a commit of `main`, not a release tag, until a
+   TimeToShare release carries the hooks and format version 0.2.0: the latest release,
+   `v0.1.0`, has neither. For the same reason, do not run `pre-commit autoupdate`
+   until then: it moves `rev:` to the latest release tag, which lacks the hooks.
 
    Pinning matters because the version of each release is decided by TimeToShare's
    step rules, once by the hooks on the machine of whoever commits and once by the
@@ -53,9 +55,10 @@ code: every tool comes from TimeToShare, at the version the configuration names.
    otherwise a commit the hooks accept can be refused at release time, or the reverse.
    `main` moves, and pre-commit keeps the environment it built for a `rev` without
    looking again, so two machines can hold different versions of `main` for months.
-   Move all three places together, in one commit. TimeToShare reads only the format
-   version it was released for, so a TimeToShare release of a newer format version
-   comes with converting the manifests, in the same commit.
+   Move all three places together, to the same new TimeToShare commit, in one commit
+   of this repository. TimeToShare reads only the format version it was released for,
+   so moving to a TimeToShare version of a newer format version comes with converting
+   the manifests, in the same commit.
 6. In the repository's **Settings → Actions → General → Workflow permissions**, allow
    GitHub Actions to create and approve pull requests, so that release-please can open
    its release pull request.
@@ -84,22 +87,21 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   manifests and tables with the last commit and writes the header the change
   requires: the type of the highest step, a scope, and for a removal `!` and the
   footer `BREAKING CHANGE: removes …` naming the removed IDs. You write the subject
-  only. Staging timelines added to `bpsd/op106/manifest.yaml` and
-  `bpsd/op109/manifest.yaml` and running
+  only. Staging timelines added to `bpsd/op106/manifest.yaml` and running
 
   ```console
   git commit -m "add the BPSD recordings"
   ```
 
-  commits `feat(bpsd): add the BPSD recordings`. The scope is the manifest file's
-  name without its extension when the change lies in one manifest, the top folder
-  when it lies in several manifests under one, and absent otherwise; where every
-  manifest is called `manifest.yaml`, a change to one of them gets the scope
-  `manifest`, so name the piece by typing the header yourself
-  (`git commit -m "feat(op106): add the BPSD recordings"`). A header you type is kept
-  as it is. When the commit holds smaller changes beside the highest one, the hook
-  counts them in a line `also: …` (`also: 2 belief, 1 label`); splitting the commit
-  keeps the changelog finer. Merges, amends, squashes and commits that change no data
+  commits `feat(op106): add the BPSD recordings`. When the change lies in one
+  manifest, the scope is the name of the folder holding it if the file is called
+  `manifest` with any extension (`bpsd/op106/manifest.yaml` gives `op106`), and the
+  file's name without its extension otherwise; when it lies in several manifests
+  under one top folder, the scope is that folder (`bpsd/op106/manifest.yaml` and
+  `bpsd/op109/manifest.yaml` give `bpsd`); otherwise there is none. A header you type
+  is kept as it is. When the commit holds smaller changes beside the highest one, the
+  hook counts them in a line `also: …` (`also: 2 belief, 1 label`); splitting the
+  commit keeps the changelog finer. Merges, amends, squashes and commits that change no data
   are left to you.
 - **`timetoshare-commit-check`** (on the final message) refuses a message whose type
   gives a lower step than the staged change (a `label` commit that adds a timeline, a
@@ -167,7 +169,8 @@ full rules are in TimeToShare's README, section "Versions of a dataset".
 - **Patch: names, drawing, application data, moves and beliefs.** A `name`, styling
   and elisions in `graphical`, `meta`, a resource's `url` changed for the same bytes,
   and a belief, a rejection included.
-- **No step:** another serialization or form of the same value, comments.
+- **No step:** another serialization or form of the same value, comments, and a
+  conversion to a later TimeToShare format version that keeps every element.
 - **Refused:** giving an ID to another element, whether of another type or after its
   own element was removed in an earlier release. An ID that was published stays
   bound to what it named.
@@ -179,16 +182,35 @@ release-please. release-please keeps one release pull request open, titled with 
 next version, which updates `CHANGELOG.md` and `.release-please-manifest.json`; each
 further push updates it. Merging it publishes the release: release-please tags the
 merge commit `vX.Y.Z` and creates the GitHub release with the changelog entry as its
-notes. On the push that merges a release pull request, the check compares the data at
-the last release tag with the merged state and fails when the proposed version is
-lower than the data's change requires (a removal under a minor version, say),
-naming the IDs; release-please then tags nothing. The remedy is a commit whose type
-says what happened, or a commit with a `Release-As: X.Y.Z` footer. On every other
-push, the check writes the step of the pending release into the job summary.
+notes.
 
-**Drafts.** Until the dataset is first published, its releases are `0.y.z`, starting
-at `0.1.0`: a removal raises the middle number (`0.3.2` to `0.4.0`), an addition or
-edit the last (`0.3.2` to `0.3.3`), and every other change the last as well.
+**The check** treats a push as a release when the version in
+`.release-please-manifest.json` is not `0.0.0` and has no tag `v<version>` yet: that is
+the push merging a release pull request, which raised the version. On that push it
+compares the data at the latest version tag (before the first release, an empty
+repository) with the pushed state, Git LFS files included, and fails, so that
+release-please tags nothing, when
+
+- the version is lower than the change of the data requires (a removal under a minor
+  version, say), naming the IDs;
+- an ID is reused: it names another element than in an earlier release;
+- a change cannot be determined, such as a table that could not be compared.
+
+The remedy is a commit whose type says what happened, or a commit with a
+`Release-As: X.Y.Z` footer; a change that could not be determined is made readable
+first (a table that parses, an LFS file that is pushed). On every other push, the
+check writes the step of the pending release into the job summary and fails nothing.
+
+**Drafts.** Until the dataset is first published, its releases are `0.y.z`: a removal
+raises the middle number (`0.3.2` to `0.4.0`), an addition or edit the last (`0.3.2`
+to `0.3.3`), and every other change the last as well.
+
+**The first release is `0.1.0`.** `.release-please-manifest.json` starts at `0.0.0`,
+which stands for no release, and `release-please-config.json` sets `initial-version`
+to `0.1.0`, so the first release pull request proposes `0.1.0`. Without that setting
+release-please would propose `1.0.0`, which would announce the dataset as published
+before anyone decided so; `0.1.0` keeps the first releases drafts, compared by the
+check with the empty repository, where all their data counts as added.
 
 **The first publication** is `1.0.0`, set by a person, with an empty commit whose
 message carries the footer:
