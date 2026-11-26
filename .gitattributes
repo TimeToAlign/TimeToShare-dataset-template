@@ -1,0 +1,3 @@
+*.parquet binary
+*.yaml text eol=lf
+*.json text eol=lf
