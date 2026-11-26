@@ -18,9 +18,9 @@ permissions:
 jobs:
   check:
     name: Version step of the data
+    if: github.repository != 'TimeToAlign/TimeToShare-dataset-template'
     permissions:
       contents: read
-      pull-requests: read
     uses: TimeToAlign/TimeToShare/.github/workflows/dataset-release-check.yml@main # pin to a TimeToShare release tag or commit
     with:
       timetoshare-ref: main # pin to a TimeToShare release tag or commit
@@ -28,6 +28,7 @@ jobs:
   release-please:
     name: Release pull request and tag
     needs: check
+    if: github.repository != 'TimeToAlign/TimeToShare-dataset-template'
     runs-on: ubuntu-latest
     permissions:
       contents: write
