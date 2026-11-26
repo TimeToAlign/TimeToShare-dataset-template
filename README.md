@@ -15,7 +15,7 @@ code: every tool comes from TimeToShare, at the version the configuration names.
 
 | File | Does |
 | --- | --- |
-| `.pre-commit-config.yaml` | the git hooks that validate the manifests and write and check the commit type |
+| `.pre-commit-config.yaml` | the git hooks that validate the manifests, write or suggest the commit type, and check it |
 | `.github/workflows/validate.yml` | validates every manifest on each push to `main` and each pull request |
 | `.github/workflows/release.yml` | checks the version step of the data, then runs release-please |
 | `release-please-config.json`, `.release-please-manifest.json` | release-please's configuration and the current version |
@@ -84,31 +84,62 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
 - **`timetoshare-validate`** (before the commit) validates every staged manifest and
   stops the commit when one is invalid.
 - **`timetoshare-commit-type`** (before the message is edited) compares the staged
-  manifests and tables with the last commit and writes the header the change
-  requires: the type of the highest step, a scope, and for a removal `!` and the
-  footer `BREAKING CHANGE: removes …` naming the removed IDs. You write the subject
-  only. Staging timelines added to `bpsd/op106/manifest.yaml` and running
+  manifests and tables with the last commit and finds what kind of change they hold.
+  For additions, edits and removals it writes the type itself, when the message has
+  none yet:
+  `feat(<scope>): ` for an addition or an edit, and for a removal
+  `remove(<scope>)!: ` with the footer `BREAKING CHANGE: removes …` naming the
+  removed IDs. You write the subject only. Staging timelines added to
+  `bpsd/op106/manifest.yaml` and running
 
   ```console
   git commit -m "add the BPSD recordings"
   ```
 
-  commits `feat(op106): add the BPSD recordings`. When the change lies in one
-  manifest, the scope is the name of the folder holding it if the file is called
-  `manifest` with any extension (`bpsd/op106/manifest.yaml` gives `op106`), and the
-  file's name without its extension otherwise; when it lies in several manifests
-  under one top folder, the scope is that folder (`bpsd/op106/manifest.yaml` and
-  `bpsd/op109/manifest.yaml` give `bpsd`); otherwise there is none. A header you type
-  is kept as it is. When the commit holds smaller changes beside the highest one, the
-  hook counts them in a line `also: …` (`also: 2 belief, 1 label`); splitting the
-  commit keeps the changelog finer. Merges, amends, squashes and commits that change no data
-  are left to you.
-- **`timetoshare-commit-check`** (on the final message) refuses a message whose type
-  gives a lower step than the staged change (a `label` commit that adds a timeline, a
-  removal written as anything but `remove` with `!`, a `remove` without `!`), a header
-  without a subject, and an ID given to an element of another type. It warns where the
-  type gives a higher step than the change, and where the `BREAKING CHANGE` footer
-  misses a removed ID or stands on a commit that removes nothing.
+  commits `feat(op106): add the BPSD recordings`.
+
+  For the smaller kinds (beliefs, names, drawing, application data, moved files) it
+  writes nothing and suggests a type instead. When you write the message in the
+  editor, the suggestion stands there as a comment line, which git removes from the
+  message; when you give the message with `-m`, the hook prints the suggestion in the
+  terminal. Staging a renamed timeline in `bpsd/op106/manifest.yaml` and running
+
+  ```console
+  git commit -m "name the movements"
+  ```
+
+  prints the suggestion `label(op106): …` and commits `name the movements` as you
+  wrote it. Add the type if you want the change to show in the changelog
+  (`git commit -m "label(op106): name the movements"`), or leave the commit without
+  one.
+
+  The scope is found the same way in both cases. When the change lies in one
+  manifest, it is the name of the folder holding it if the file is called `manifest`
+  with any extension (`bpsd/op106/manifest.yaml` gives `op106`), and the file's name
+  without its extension otherwise; when it lies in several manifests under one top
+  folder, it is that folder (`bpsd/op106/manifest.yaml` and
+  `bpsd/op109/manifest.yaml` give `bpsd`); otherwise there is none. A type you write
+  yourself is kept as it is.
+
+  When a commit holds several kinds of change, say a new timeline and a renamed one,
+  the hook suggests making one commit for each. Small commits, one change at a time,
+  keep the history readable and give every change its own line in the changelog.
+  Merges, amends, squashes and commits that change no data are left to you.
+- **`timetoshare-commit-check`** (on the final message) refuses the commit only when
+  the message would hide what the data change does:
+  - a type written by hand that hides an addition, an edit or a removal (a `label`
+    commit that adds a timeline, say);
+  - a removal not typed `remove(…)!` (a `feat` that removes, a `remove` without `!`);
+  - an ID given to another element;
+  - a type with no subject after it;
+  - a message without a type for a change that adds, edits or removes, which happens
+    only when the first hook did not run (a commit made without the hooks installed
+    in that clone, for instance).
+
+  Everything else is a warning, and the commit goes through: a missing type on a
+  belief, a name, drawing, application data or a move; a type that names a larger
+  step than the change; a `BREAKING CHANGE` footer that misses a removed ID or stands
+  on a commit that removes nothing.
 
 ## Laying out the data
 
@@ -131,7 +162,9 @@ licence, and a checksum of each file (`sha256sum`).
 release-please computes each version from the
 [Conventional Commits](https://www.conventionalcommits.org/) types of the commits since
 the last release: `feat` makes a minor step, `!` after the type or scope a major step,
-every other type a patch. A dataset repository gives these types data meanings:
+every other type a patch. A commit without a type does not appear in the changelog
+and raises no version: release-please reads typed commits only. A dataset repository
+gives these types data meanings:
 
 | Type | Instead of | Step | Changelog section | For |
 |---|---|---|---|---|
@@ -145,6 +178,11 @@ every other type a patch. A dataset repository gives these types data meanings:
 | `docs` | `docs` | patch | Documentation | README, FETCH.md and other prose |
 | `fix` | `fix` | patch | Scripts | a fix to the repository's own scripts or loaders |
 | `chore`, `build`, `ci`, `refactor`, `test`, `style` | the same | none of their own (hidden) | — | everything else about the repository's code |
+
+The hooks write `feat` and `remove` with `!` themselves, since a change of that kind
+must be typed. They only suggest `belief`, `label`, `graphic`, `meta` and `move`: you
+may add the suggested type, which gives the change a line in the changelog and a
+patch release, or leave the commit untyped. The other types are yours to choose.
 
 The scope names the manifest or the part of the dataset (`op106`, `bpsd`, `mtd`). A
 commit touching data and code takes the type of its data. Code (scripts, notebooks,
