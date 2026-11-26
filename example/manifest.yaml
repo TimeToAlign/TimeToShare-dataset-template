@@ -1,0 +1,27 @@
+id: "#example"
+name: "Example dataset"
+timelines:
+  -
+    children:
+      -
+        id: "#excerpt"
+        length: 45.0
+        name: Excerpt
+        offset: 20.0
+        unit: seconds
+    id: "#recording"
+    length: 312.5
+    name: Recording
+    unit: seconds
+  -
+    id: "#score"
+    length: [256, 1]
+    name: Score
+    regions:
+      -
+        end: [96, 1]
+        id: "#exposition"
+        name: Exposition
+        start: [0, 1]
+    unit: quarters
+timetoshare: "0.2.0"
