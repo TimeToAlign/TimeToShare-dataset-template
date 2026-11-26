@@ -12,14 +12,17 @@ pre-commit install --hook-type pre-commit --hook-type prepare-commit-msg --hook-
 
 They validate the staged manifests, write the commit type for an addition, an edit
 or a removal, suggest one for a belief, a name, drawing, application data or a moved
-file, and refuse a message that hides an addition, an edit or a removal. A suggested
-type may be added or left out: a commit without a type is kept, but does not appear
-in the changelog and raises no version.
+file (`Suggested type "label(op106):", since this commit changes names only`), and
+refuse a message that hides an addition, an edit or a removal. With `-m`, the check
+also prints a warning naming the suggested type. A suggested type may be added or
+left out: a commit without a type is kept, but does not appear in the changelog and
+raises no version.
 
 **One kind of change per commit.** Make small commits, one change at a time: add the
 new recordings in one commit, rename the movements in the next. Each commit then gets
 the right type and its own line in the changelog, and the history says what happened
-when. When a commit mixes several kinds of change, the hooks suggest splitting it.
+when. When a commit mixes several kinds of change, the hooks suggest splitting it,
+also when you typed the type yourself.
 
 **Commit types** (README, "Commit types"): `feat` for added or edited data,
 corrections included; `remove` with `!` for removals; `belief`, `label`, `graphic`,

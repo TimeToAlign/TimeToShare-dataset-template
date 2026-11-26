@@ -7,7 +7,8 @@ repos:
     hooks:
       # Validates every staged manifest.
       - id: timetoshare-validate
-      # Writes the commit type the staged change requires before the message is edited.
+      # Writes feat or remove! where the staged change adds, edits or removes, and
+      # suggests the type of any other change.
       - id: timetoshare-commit-type
-      # Refuses a commit message whose type understates the staged change.
+      # Refuses a hand-written type that hides an addition, an edit or a removal.
       - id: timetoshare-commit-check

@@ -108,8 +108,9 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   git commit -m "name the movements"
   ```
 
-  prints the suggestion `label(op106): …` and commits `name the movements` as you
-  wrote it. Add the type if you want the change to show in the changelog
+  prints the suggestion `Suggested type "label(op106):", since this commit changes
+  names only`, and the check below prints a warning naming the same type; the commit
+  is `name the movements` as you wrote it. Add the type if you want the change to show in the changelog
   (`git commit -m "label(op106): name the movements"`), or leave the commit without
   one.
 
@@ -122,7 +123,8 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   yourself is kept as it is.
 
   When a commit holds several kinds of change, say a new timeline and a renamed one,
-  the hook suggests making one commit for each. Small commits, one change at a time,
+  the hook suggests making one commit for each, also when you typed the type yourself
+  (it then suggests no type). Small commits, one change at a time,
   keep the history readable and give every change its own line in the changelog.
   Merges, amends, squashes and commits that change no data are left to you.
 - **`timetoshare-commit-check`** (on the final message) refuses the commit only when
@@ -138,8 +140,8 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
 
   Everything else is a warning, and the commit goes through: a missing type on a
   belief, a name, drawing, application data or a move; a type that names a larger
-  step than the change; a `BREAKING CHANGE` footer that misses a removed ID or stands
-  on a commit that removes nothing.
+  step than the change; a `remove` without `!` or a `BREAKING CHANGE` footer on a
+  commit that removes nothing; a footer that misses a removed ID.
 
 ## Laying out the data
 
