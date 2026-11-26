@@ -21,9 +21,9 @@ jobs:
     if: github.repository != 'TimeToAlign/TimeToShare-dataset-template'
     permissions:
       contents: read
-    uses: TimeToAlign/TimeToShare/.github/workflows/dataset-release-check.yml@main # pin to a TimeToShare release tag or commit
+    uses: TimeToAlign/TimeToShare/.github/workflows/dataset-release-check.yml@e60232db3cdf8e4913b015719264570ae877b193 # the same TimeToShare commit as in .pre-commit-config.yaml
     with:
-      timetoshare-ref: main # pin to a TimeToShare release tag or commit
+      timetoshare-ref: e60232db3cdf8e4913b015719264570ae877b193 # the same commit again
 
   release-please:
     name: Release pull request and tag

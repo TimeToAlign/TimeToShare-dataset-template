@@ -36,13 +36,13 @@ code: every tool comes from TimeToShare, at the version the configuration names.
    only: one recording timeline in seconds with an excerpt as its child, one score
    timeline in quarters with a region, and the inline `@context` with the format's
    terms, which every manifest carries.
-5. Pin TimeToShare to one commit, the same full commit hash in three places:
+5. Keep TimeToShare pinned to one commit, the same full commit hash in three places.
+   The template comes pinned already; to move to a newer TimeToShare, change all three:
    - `.pre-commit-config.yaml`: the `rev:` of the TimeToShare repository;
-   - `.github/workflows/release.yml`: the `main` after the `@` at the end of the
+   - `.github/workflows/release.yml`: the hash after the `@` at the end of the
      `uses:` line of the job `check`;
    - `.github/workflows/release.yml`: the job's input `timetoshare-ref:`.
 
-   Each carries the comment `# pin to a TimeToShare release tag or commit`.
    `git ls-remote https://github.com/TimeToAlign/TimeToShare main` prints the latest
    commit of TimeToShare's `main`. Pin a commit of `main`, not a release tag, until a
    TimeToShare release carries the hooks and format version 0.2.0: the latest release,

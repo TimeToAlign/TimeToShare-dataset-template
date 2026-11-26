@@ -1,9 +1,9 @@
-# The hooks come from TimeToShare. Replace `rev: main` with a TimeToShare release tag
-# or commit, the same one the workflows in .github/workflows name (see README.md).
+# The hooks come from TimeToShare, pinned to one commit: the same one that
+# .github/workflows/release.yml names twice (see README.md).
 default_install_hook_types: [pre-commit, prepare-commit-msg, commit-msg]
 repos:
   - repo: https://github.com/TimeToAlign/TimeToShare
-    rev: main # pin to a TimeToShare release tag or commit
+    rev: e60232db3cdf8e4913b015719264570ae877b193 # TimeToShare main, pinned; the same commit in .github/workflows/release.yml
     hooks:
       # Validates every staged manifest.
       - id: timetoshare-validate
