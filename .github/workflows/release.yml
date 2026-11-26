@@ -1,0 +1,40 @@
+# release-please keeps one release pull request open, carrying the next version and its
+# changelog entry, both computed from the commit types since the last release. Merging
+# that pull request tags vX.Y.Z and creates the GitHub release. The check job runs
+# first: on the push that merges a release pull request it compares the data of the
+# last release tag with the merged state and fails, so that release-please tags
+# nothing, when the proposed version is lower than the data's change requires. On every
+# other push it writes the step of the pending release into the job summary.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Version step of the data
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: TimeToAlign/TimeToShare/.github/workflows/dataset-release-check.yml@main # pin to a TimeToShare release tag or commit
+    with:
+      timetoshare-ref: main # pin to a TimeToShare release tag or commit
+
+  release-please:
+    name: Release pull request and tag
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@v5
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
