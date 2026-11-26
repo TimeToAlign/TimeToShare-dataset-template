@@ -1,0 +1,13 @@
+# The hooks come from TimeToShare. Replace `rev: main` with a TimeToShare release tag
+# or commit, the same one the workflows in .github/workflows name (see README.md).
+default_install_hook_types: [pre-commit, prepare-commit-msg, commit-msg]
+repos:
+  - repo: https://github.com/TimeToAlign/TimeToShare
+    rev: main # pin to a TimeToShare release tag or commit
+    hooks:
+      # Validates every staged manifest.
+      - id: timetoshare-validate
+      # Writes the commit type the staged change requires before the message is edited.
+      - id: timetoshare-commit-type
+      # Refuses a commit message whose type understates the staged change.
+      - id: timetoshare-commit-check
