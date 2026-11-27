@@ -241,12 +241,41 @@ The remedy is a commit whose type says what happened, or a commit with a
 first (a table that parses, an LFS file that is pushed). On every other push, the
 check writes the step of the pending release into the job summary and fails nothing.
 
-**The failed "Validate" check on the release pull request is harmless.** release-please
-opens its pull request with the workflow's `GITHUB_TOKEN`, and GitHub runs no workflow
-for a pull request opened by that token. The pull request therefore shows a failed
-"Validate" check without any jobs ("This run likely failed because of a workflow file
-issue"). Nothing is wrong: the release itself is checked by `release.yml` on the push
-that merges the pull request.
+**Checks on the release pull request.** GitHub runs no workflow for a pull request
+opened with a workflow's own `GITHUB_TOKEN`. Where the organisation has a release app
+(see [The release app](#the-release-app)), `release.yml` lets release-please act as
+that app, and the checks run on its release pull request as on any other. Without the
+app, release-please falls back to the workflow's token, and the release pull request
+shows a failed "Validate" check without any jobs ("This run likely failed because of a
+workflow file issue"). That is harmless: the release itself is checked by `release.yml`
+on the push that merges the pull request.
+
+### The release app
+
+An organisation sets this up once; every dataset repository made from this template
+then uses it without further changes.
+
+1. **Create the app.** In the organisation's **Settings → Developer settings → GitHub
+   Apps → New GitHub App**: a name (for example "Dataset releases"), any homepage URL
+   (the organisation's), **Webhook** unticked. Repository permissions: **Contents**
+   read and write, **Pull requests** read and write, **Issues** read and write
+   (release-please labels its pull request); everything else stays "No access". Where
+   it can be installed: only on this account. Create it.
+2. **Note the client ID** shown on the app's page (it starts with `Iv`).
+3. **Generate a private key** on the same page (**Private keys → Generate a private
+   key**); the browser downloads a `.pem` file.
+4. **Install the app** (**Install App** in the app's menu) on the organisation, for
+   all repositories or only the dataset repositories.
+5. **Store the two values** in the organisation's **Settings → Secrets and variables →
+   Actions**: under **Variables**, `RELEASE_APP_CLIENT_ID` with the client ID; under
+   **Secrets**, `RELEASE_APP_PRIVATE_KEY` with the whole content of the `.pem` file.
+   Give both access to the dataset repositories. Then delete the downloaded `.pem`
+   file.
+
+On GitHub's free plan, an organisation's secrets and variables reach only its public
+repositories: a private dataset repository gets the same variable and secret in its
+own **Settings → Secrets and variables → Actions**. A repository with neither falls
+back to the workflow's token, as described above.
 
 **Drafts.** Until the dataset is first published, its releases are `0.y.z`: a removal
 raises the middle number (`0.3.2` to `0.4.0`), an addition or edit the last (`0.3.2`

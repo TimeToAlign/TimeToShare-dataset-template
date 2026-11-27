@@ -35,7 +35,18 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # With the organisation's release app (the variable RELEASE_APP_CLIENT_ID and the
+      # secret RELEASE_APP_PRIVATE_KEY), release-please acts as that app, so that the
+      # checks run on its release pull request; without them it uses the workflow's
+      # own token, for which GitHub runs no checks (see README.md, "Releases").
+      - id: app-token
+        if: vars.RELEASE_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - uses: googleapis/release-please-action@v5
         with:
+          token: ${{ steps.app-token.outputs.token || github.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
