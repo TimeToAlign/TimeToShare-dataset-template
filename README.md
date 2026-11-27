@@ -241,6 +241,13 @@ The remedy is a commit whose type says what happened, or a commit with a
 first (a table that parses, an LFS file that is pushed). On every other push, the
 check writes the step of the pending release into the job summary and fails nothing.
 
+**The failed "Validate" check on the release pull request is harmless.** release-please
+opens its pull request with the workflow's `GITHUB_TOKEN`, and GitHub runs no workflow
+for a pull request opened by that token. The pull request therefore shows a failed
+"Validate" check without any jobs ("This run likely failed because of a workflow file
+issue"). Nothing is wrong: the release itself is checked by `release.yml` on the push
+that merges the pull request.
+
 **Drafts.** Until the dataset is first published, its releases are `0.y.z`: a removal
 raises the middle number (`0.3.2` to `0.4.0`), an addition or edit the last (`0.3.2`
 to `0.3.3`), and every other change the last as well.
