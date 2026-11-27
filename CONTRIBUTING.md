@@ -29,7 +29,8 @@ corrections included; `remove` with `!` for removals; `belief`, `label`, `graphi
 `meta` and `move` for beliefs, names, drawing, application data and moved files;
 `docs` for prose; `fix` for a fix to the repository's scripts; `build`, `chore`,
 `ci`, `refactor`, `test` and `style` for code and configuration, never `feat`. The
-scope names the manifest or part of the dataset.
+scope names the manifest or part of the dataset that changed, never the dataset
+itself; a change to the whole dataset has no scope.
 
 **A removal** is written `remove(<scope>)!:`, with the `!`, and its footer names
 every removed ID. The hooks write both when the message has no type yet; you add the

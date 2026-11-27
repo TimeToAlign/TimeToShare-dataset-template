@@ -186,7 +186,9 @@ must be typed. They only suggest `belief`, `label`, `graphic`, `meta` and `move`
 may add the suggested type, which gives the change a line in the changelog and a
 patch release, or leave the commit untyped. The other types are yours to choose.
 
-The scope names the manifest or the part of the dataset (`op106`, `bpsd`, `mtd`). A
+The scope names the manifest or the part of the dataset that changed (`op106`, `bpsd`),
+never the dataset itself, which every commit of the repository concerns anyway; a change
+to the whole dataset has no scope. A
 commit touching data and code takes the type of its data. Code (scripts, notebooks,
 loaders) is committed as `build`, `chore` or `refactor` (`fix` for a fix to it), never
 as `feat`: `feat` announces new data.
