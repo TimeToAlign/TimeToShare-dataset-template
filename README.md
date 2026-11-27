@@ -273,9 +273,39 @@ then uses it without further changes.
    file.
 
 On GitHub's free plan, an organisation's secrets and variables reach only its public
-repositories: a private dataset repository gets the same variable and secret in its
-own **Settings → Secrets and variables → Actions**. A repository with neither falls
-back to the workflow's token, as described above.
+repositories, even where the organisation's settings let a private repository be
+selected (the values arrive empty). A private dataset repository therefore gets the
+same variable and secret in its own **Settings → Secrets and variables → Actions**. A
+repository with neither falls back to the workflow's token, as described above.
+
+**Adding a dataset repository later.** Create it from this template, then:
+
+1. If the app was installed on selected repositories only, add the new one (the
+   organisation's **Settings → GitHub Apps → the app → Configure → Repository
+   access**). An app installed on all repositories needs nothing.
+2. A public repository: if the organisation's variable and secret give access to
+   selected repositories, add it to both (their **Repository access** setting); with
+   access for all repositories, nothing. A private repository on the free plan: add
+   the variable `RELEASE_APP_CLIENT_ID` and the secret `RELEASE_APP_PRIVATE_KEY` in
+   the repository's own settings. The private key can be generated again on the
+   app's page; an old key stays valid until it is deleted there.
+3. Allow GitHub Actions to create pull requests (step 6 of [Create a dataset
+   repository from it](#create-a-dataset-repository-from-it)).
+
+The first push then runs `release.yml`: release-please opens "chore(main): release
+0.1.0" as the app (its author is shown as the app), and "Validate" runs on it.
+
+**Another organisation, or a personal account.** An app belongs to the account that
+created it. Another organisation creates an app of its own by the five steps above,
+in its own settings; the template's workflow needs no change, since it reads only the
+variable and the secret. A personal account creates the app under **Settings →
+Developer settings → GitHub Apps** of that account and, having no organisation
+secrets, stores the variable and the secret in each dataset repository.
+
+**When release-please fails with "We couldn't respond to your request in time".**
+GitHub's API timed out while release-please read the history, which happens on the
+first run in a repository with many commits or large files. Re-run the failed job
+(**Actions → the run → Re-run failed jobs**); it reads less the second time.
 
 **Drafts.** Until the dataset is first published, its releases are `0.y.z`: a removal
 raises the middle number (`0.3.2` to `0.4.0`), an addition or edit the last (`0.3.2`
