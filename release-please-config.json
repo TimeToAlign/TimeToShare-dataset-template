@@ -11,19 +11,19 @@
       "changelog-sections": [
         {"type": "feat", "section": "Added or changed"},
         {"type": "remove", "section": "Removed"},
-        {"type": "belief", "section": "Beliefs"},
+        {"type": "belief", "section": "Recorded Beliefs"},
         {"type": "label", "section": "Names"},
         {"type": "graphic", "section": "Drawing"},
-        {"type": "meta", "section": "Application data"},
+        {"type": "meta", "section": "Metadata"},
         {"type": "move", "section": "Moved"},
         {"type": "docs", "section": "Documentation"},
-        {"type": "fix", "section": "Scripts"},
-        {"type": "chore", "hidden": true},
-        {"type": "build", "hidden": true},
-        {"type": "ci", "hidden": true},
-        {"type": "refactor", "hidden": true},
-        {"type": "test", "hidden": true},
-        {"type": "style", "hidden": true}
+        {"type": "fix", "section": "Code"},
+        {"type": "chore", "section": "Code"},
+        {"type": "build", "section": "Code"},
+        {"type": "ci", "section": "Code"},
+        {"type": "refactor", "section": "Code"},
+        {"type": "test", "section": "Code"},
+        {"type": "style", "section": "Code"}
       ]
     }
   }

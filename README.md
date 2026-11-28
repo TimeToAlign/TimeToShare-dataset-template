@@ -176,14 +176,14 @@ gives these types data meanings:
 |---|---|---|---|---|
 | `feat` | `feat`; `fix` for a correction | minor | Added or changed | adding an element, a member, a pair, a resource, a MatchClaim, a row, a manifest; editing what an element states, corrections included. The subject starts with its verb: `feat(op106): add the BPSD recordings`, `feat(op106): correct the offset of movement 2` |
 | `remove` with `!` | `feat!` | major (minor below 1.0.0) | Removed, and the removed IDs under "⚠ BREAKING CHANGES" | removing anything with an ID, a member, a pair, a MatchClaim, a row, a manifest, or changing an ID; the footer `BREAKING CHANGE: removes #clt_3, #region_7` names what goes. `remove(mtd)!: drop the duplicate excerpt of theme 112` |
-| `belief` | `fix` | patch | Beliefs | recording a belief: confirming, rejecting, finding unlikely. `belief(op106): reject MatchClaim mc_3kq9x0m2ztb7a, off by one beat` |
+| `belief` | `fix` | patch | Recorded Beliefs | recording a belief: confirming, rejecting, finding unlikely. `belief(op106): reject MatchClaim mc_3kq9x0m2ztb7a, off by one beat` |
 | `label` | `chore` | patch | Names | the `name` of the manifest or of any element |
 | `graphic` | `style` | patch | Drawing | `graphical`: styling rules, orders, display words, elisions |
-| `meta` | `chore` | patch | Application data | `meta` |
+| `meta` | `chore` | patch | Metadata | `meta` |
 | `move` | `refactor` | patch | Moved | a descriptor's `url` changed for the same bytes. Moving a manifest file changes its address and is a removal |
 | `docs` | `docs` | patch | Documentation | README, FETCH.md and other prose |
-| `fix` | `fix` | patch | Scripts | a fix to the repository's own scripts or loaders |
-| `chore`, `build`, `ci`, `refactor`, `test`, `style` | the same | none of their own (hidden) | — | everything else about the repository's code |
+| `fix` | `fix` | patch | Code | a fix to the repository's own scripts or loaders |
+| `chore`, `build`, `ci`, `refactor`, `test`, `style` | the same | patch | Code | everything else about the repository's code |
 
 The hooks write `feat` and `remove` with `!` themselves, since a change of that kind
 must be typed. They only suggest `belief`, `label`, `graphic`, `meta` and `move`: you
@@ -195,7 +195,8 @@ never the dataset itself, which every commit of the repository concerns anyway; 
 to the whole dataset has no scope. A
 commit touching data and code takes the type of its data. Code (scripts, notebooks,
 loaders) is committed as `build`, `chore` or `refactor` (`fix` for a fix to it), never
-as `feat`: `feat` announces new data.
+as `feat`: `feat` announces new data. Code commits are listed under "Code" in the
+changelog, and a release holding only them is a patch release.
 
 ## What each step means
 
