@@ -20,7 +20,7 @@ code: every tool comes from TimeToShare, at the version the configuration names.
 | `.github/workflows/release.yml` | checks the version step of the data, then runs release-please |
 | `release-please-config.json`, `.release-please-manifest.json` | release-please's configuration and the current version |
 | `.gitattributes`, `.gitignore` | line endings for YAML and JSON, Parquet as binary; files git ignores |
-| `example/manifest.yaml` | a sample manifest, to be replaced |
+| `example.tts.yaml` | a sample manifest, to be replaced |
 
 ## Create a dataset repository from it
 
@@ -32,7 +32,7 @@ code: every tool comes from TimeToShare, at the version the configuration names.
    since data licences differ from dataset to dataset (Creative Commons licences are
    common for data; tables imported from elsewhere keep their own terms, which
    `FETCH.md` records, see [Laying out the data](#laying-out-the-data)).
-4. Replace `example/manifest.yaml` with the dataset's own manifests. It is a sample
+4. Replace `example.tts.yaml` with the dataset's own manifests. It is a sample
    only: one recording timeline in seconds with an excerpt as its child, one score
    timeline in quarters with a region, and the inline `@context` with the format's
    terms, which every manifest carries.
@@ -90,7 +90,7 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   `feat(<scope>): ` for an addition or an edit, and for a removal
   `remove(<scope>)!: ` with the footer `BREAKING CHANGE: removes …` naming the
   removed IDs. You write the subject only. Staging timelines added to
-  `bpsd/op106/manifest.yaml` and running
+  `bpsd/op106.tts.yaml` and running
 
   ```console
   git commit -m "add the BPSD recordings"
@@ -102,7 +102,7 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   writes nothing and suggests a type instead. When you write the message in the
   editor, the suggestion stands there as a comment line, which git removes from the
   message; when you give the message with `-m`, the hook prints the suggestion in the
-  terminal. Staging a renamed timeline in `bpsd/op106/manifest.yaml` and running
+  terminal. Staging a renamed timeline in `bpsd/op106.tts.yaml` and running
 
   ```console
   git commit -m "name the movements"
@@ -115,11 +115,10 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
   one.
 
   The scope is found the same way in both cases. When the change lies in one
-  manifest, it is the name of the folder holding it if the file is called `manifest`
-  with any extension (`bpsd/op106/manifest.yaml` gives `op106`), and the file's name
-  without its extension otherwise; when it lies in several manifests under one top
-  folder, it is that folder (`bpsd/op106/manifest.yaml` and
-  `bpsd/op109/manifest.yaml` give `bpsd`); otherwise there is none. A type you write
+  manifest, it is the manifest file's name without `.tts.yaml` (`bpsd/op106.tts.yaml`
+  gives `op106`); when it lies in several manifests under one top folder, it is that
+  folder (`bpsd/op106.tts.yaml` and `bpsd/op109.tts.yaml` give `bpsd`); otherwise
+  there is none. A type you write
   yourself is kept as it is.
 
   When a commit holds several kinds of change, say a new timeline and a renamed one,
@@ -145,10 +144,13 @@ pre-commit fetches the pinned TimeToShare and installs three hooks:
 
 ## Laying out the data
 
-Manifests may lie anywhere in the repository; by convention each piece has its own
-folder, `<part>/<piece>/manifest.yaml`. Every table lies beside the manifest whose
-`resources` name it. Write manifests in canonical YAML (TimeToShare's `dumps`) so
-that diffs show only what changed.
+A manifest file is named after the piece it describes and ends in `.tts.yaml`; the
+hooks take exactly the files named so as manifests. Manifests may lie anywhere in the
+repository; by convention each lies in the folder of its part,
+`<part>/<piece>.tts.yaml`. The tables lie at the level of the package, the folder
+whose `package.yaml` lists the manifests and the tables they share
+([Packages](https://github.com/TimeToAlign/TimeToShare#packages)). Write manifests in
+canonical YAML (TimeToShare's `dumps`) so that diffs show only what changed.
 
 A manifest's path is part of its address: everyone citing one of its elements uses
 it. Renaming or moving a manifest file therefore counts as removing that manifest and
@@ -357,7 +359,7 @@ the manifest's URL with the ID as its fragment. Pin the address to a release by 
 the URL at a release tag,
 
 ```text
-https://raw.githubusercontent.com/<owner>/<repository>/v1.2.0/bpsd/op106/manifest.yaml#clt_3
+https://raw.githubusercontent.com/<owner>/<repository>/v1.2.0/bpsd/op106.tts.yaml#clt_3
 ```
 
 or cite the release's version DOI together with the manifest's path and the ID. A
