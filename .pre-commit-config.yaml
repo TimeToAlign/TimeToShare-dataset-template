@@ -3,7 +3,7 @@
 default_install_hook_types: [pre-commit, prepare-commit-msg, commit-msg]
 repos:
   - repo: https://github.com/TimeToAlign/TimeToShare
-    rev: d959a0ef3914be7a8226221d6d3de37465d4693f # TimeToShare main, pinned; the same commit in .github/workflows/release.yml
+    rev: 0740a18ea209c8d09e9fd28ba1e429b02c6bc746 # TimeToShare main, pinned; the same commit in .github/workflows/release.yml
     hooks:
       # Validates every staged manifest.
       - id: timetoshare-validate
