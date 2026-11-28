@@ -155,6 +155,10 @@ it. Renaming or moving a manifest file therefore counts as removing that manifes
 adding another, which makes a new major version. Choose the layout before the first
 release.
 
+Code lives in `code/`: notebooks, scripts and loaders that build or check the data,
+together with the auxiliary tables they read or write (lists of works, of candidate
+sources, of downloads), so that the top level shows the dataset's parts only.
+
 Files imported from elsewhere (recordings' metadata, tables, scores) are recorded in a
 `FETCH.md` next to them: the source (URL or citation), the date of the download, the
 licence, and a checksum of each file (`sha256sum`).
